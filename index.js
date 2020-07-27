@@ -2,7 +2,8 @@ const cli = require('cli');
 const simpleGit = require('simple-git');
 const input = require('input');
 const Trello = require('./trello');
-
+console.log('test');
+console.log('test');
 const utils = require('./utils');
 const errorHandler = require('./errorHandler');
 
