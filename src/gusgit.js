@@ -94,9 +94,16 @@ class Gusgit {
       throw 'Not found Trello card with that number';
     }
 
+    cli.info(`Checkouting ${to}...`);
     await this.git.checkout(to);
+
+    cli.info(`Merging from ${branch.current} to ${to}...`);
     await this.git.mergeFromTo(branch.current, to);
+
+    cli.info(`Deleting branch ${branch.current}...`);
     await this.git.branch(['-D', branch.current]);
+
+    cli.info(`Pushing origin/${to}...`);
     await this.git.push('origin', to);
 
     let commitLink = utils.commitLink[this.repoType](hist.latest.hash);
@@ -107,7 +114,10 @@ class Gusgit {
       commitLink = this.config.repository + '/' + commitLink;
     }
     
+    cli.info(`Adding commit link to trello...`);
     await this.trello.addAttachmentToCard(cardByNumber.shortLink, commitLink);
+
+    cli.info(`Success! Trello card is updated. ${cardByNumber.shortUrl}`);
   }
 
   parseBranchName(branchName) {
