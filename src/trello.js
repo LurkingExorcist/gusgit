@@ -8,7 +8,7 @@ class TrelloWrapper extends Trello {
 
   getCard(cardId, callback) {
     return this.makeRequest('get', '/1/cards/' + cardId, {query: this.createQuery()}, callback);
-  };
+  }
 
   async findCardByIdShort(idShort) {
     const cards = await this.getCardsOnBoard(this.boardId);

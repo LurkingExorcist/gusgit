@@ -11,7 +11,14 @@
     "git",
     "cli"
   ],
-  "author": "Guscom Studio",
+  "bin": {
+    "greet": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hope410/gusgit.git"
+  },
+  "author": "Hope410",
   "license": "ISC",
   "dependencies": {
     "cli": "^1.0.1",

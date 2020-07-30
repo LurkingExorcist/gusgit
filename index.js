@@ -1,101 +1,42 @@
+#!/usr/bin/env node
+
 const cli = require('cli');
 const simpleGit = require('simple-git');
-const input = require('input');
-const Trello = require('./trello');
-console.log('test');
-console.log('test');
-const utils = require('./utils');
-const errorHandler = require('./errorHandler');
+const { promises: fs } = require('fs');
 
-const gusgitConfig = require('./gusgit.config.json');
+const Trello = require('./src/trello');
+const Gusgit = require('./src/gusgit');
 
-const trello = new Trello(gusgitConfig);
-
-const git = simpleGit({
-  baseDir: process.cwd(),
-  binary: 'git',
-  maxConcurrentProcesses: 6,
-})
+const errorHandler = require('./src/errorHandler');
 
 const options = cli.parse(null, {
-  ['branch <branch>']: 'Makes git branch in current directory with name "T<number>". <branch> is Trello link or branch name in format "T<number>"',
-  ['rebase [<from>]']: 'Composes your commits to one. <from> is .....',
+  ['branch <branch>']: 'Создает git-ветку с названием "T<number>". <branch> - это либо ссылка на Trello, либо название ветки в формате "T<number>"',
+  ['rebase [<from>]']: 'Компанует набор коммитов из текущей ветки в один. <from> - это название ветки, относительно которой должна произойти компановка. По умолчанию <from> = master',
+  ['land [<to>]']: 'Мержит текущую ветку с веткой <to>, удаляет ее и добавляет ссылку на коммит в карточку Trello, к которой была прикреплена ветка. По умолчанию <to> = master',
 });
-
-const commands = {
-  ['branch <branch>']: async (branchName) => {
-    let result = branchName.match(utils.trelloCardRegexp);
-
-    if (!result) {
-      result = branchName.match(utils.branchNameRegexp);
-
-      if (!result) {
-        throw 'Branch name is incorrect :(';
-      }
-    }
-
-    const { number, cardId } = result.groups;
-    const newBranchName = `T${number}`;
-
-    try {
-      await trello.getCard(cardId);
-    } catch(e) {
-      const cardByNumber = await trello.findCardByIdShort(+number);
-
-      if (!cardByNumber) {
-        throw 'Not found Trello card with that number';
-      }
-    }
-
-    await git.checkoutLocalBranch(newBranchName);
-
-    cli.info(`Current branch is: ${newBranchName}`)
-  },
-  ['rebase [<from>]']: async () => {
-    const branch = await git.branch();
-    const { total } = await git.log({
-      from: 'master',
-      to: 'HEAD'
-    });
-
-    if (total === 0) {
-      throw 'No commits to diff';
-    }
-
-    const match = branch.current.match(utils.branchNameRegexp);
-
-    if (!match) {
-      throw 'Branch name doesn\'t match format T<number>';
-    }
-
-    const { number: idShort } = match.groups;
-    const cardByNumber = await trello.findCardByIdShort(+idShort);
-    console.log(idShort)
-
-    if (!cardByNumber) {
-      throw 'Not found Trello card with that number';
-    }
-
-    const commitName = await input.text('Enter your commit name:');
-    const commitMessage = `${branch.current} | ${commitName}`;
-
-    await git.reset(['--soft', `HEAD~${total}`])
-    await git.commit(commitMessage);
-
-    cli.info(commitMessage)
-  },
-}
 
 const init = async () => {
   try {
+    const gusgitConfigBuffer = await fs.readFile('./gusgit.config.json');
+    const gusgitConfig = JSON.parse(gusgitConfigBuffer.toString());
+
+    const trello = new Trello(gusgitConfig);
+    const git = simpleGit({
+      baseDir: process.cwd(),
+      binary: 'git',
+      maxConcurrentProcesses: 6,
+    });
+
+    const gusgit = new Gusgit(trello, git, gusgitConfig);
+
     const { command, args } = cli;
-    const fn = commands[command];
+    const fn = gusgit[command].bind(gusgit);
 
     if (!fn) {
       throw `Not found command ${command}`;
     }
 
-    await commands[command](...args);
+    await fn(...args);
   } catch(e) {
     errorHandler(e);
   }
