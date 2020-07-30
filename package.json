@@ -12,7 +12,7 @@
     "cli"
   ],
   "bin": {
-    "greet": "./index.js"
+    "gusgit": "./index.js"
   },
   "repository": {
     "type": "git",
