@@ -10,9 +10,9 @@ const Gusgit = require('./src/gusgit');
 const errorHandler = require('./src/errorHandler');
 
 const options = cli.parse(null, {
-  ['branch <branch>']: 'Создает git-ветку с названием "T<number>". <branch> - это либо ссылка на Trello, либо название ветки в формате "T<number>"',
-  ['rebase [<from>]']: 'Компанует набор коммитов из текущей ветки в один. <from> - это название ветки, относительно которой должна произойти компановка. По умолчанию <from> = master',
-  ['land [<to>]']: 'Мержит текущую ветку с веткой <to>, удаляет ее и добавляет ссылку на коммит в карточку Trello, к которой была прикреплена ветка. По умолчанию <to> = master',
+  ['branch <branch>']: 'Creates a git branch named "T<number>". <branch> is either a Trello link or a branch name in the format "T<number>".',
+  ['rebase [<from>]']: 'Compiles a set of commits from the current branch into one. <from> is the name of the branch to be linked from. By default <from> = master.',
+  ['land [<to>]']: 'Merges the current branch with the <to> branch, deletes it, and adds the commit link to the Trello card to which the branch was attached. By default <to> = master.',
 });
 
 const init = async () => {
