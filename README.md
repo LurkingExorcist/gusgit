@@ -8,9 +8,6 @@ During teamwork in Trello, sometimes there is a need to organize the names of co
 
 Gusgit automates the above processes.
 
-test
-test
-
 ## Installation
 
     sudo npm i -g gusgit
