@@ -23,7 +23,7 @@
   "dependencies": {
     "cli": "^1.0.1",
     "input": "^1.0.1",
-    "simple-git": "^2.14.0",
+    "simple-git": "^3.5.0",
     "trello": "^0.10.0"
   }
 }
